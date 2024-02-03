@@ -51,29 +51,16 @@ jobs:
         echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application-awsS3.yml
       shell: bash
 
-#    - name: Grant execute permission for gradlew
-#      run: chmod +x gradlew
-#
-#    - name: Build with Gradle
-#      uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
-#      with:
-#        arguments: build
-#
-#    - name: Build with Gradle
-#      run: ./gradlew build
-#
-#    - name: Test with Gradle
-#      run: ./gradlew test
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
 
-# 도커허브 푸시 설정
-    - name: Build with Gradle
-      run: ./gradlew bootJar
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@ec92e829475ac0c2315ea8f9eced72db85bb337a # v3.0.0
 
-      ## 도커 이미지 빌드 후 도커허브에 push하기
-    - name: web docker build and push
-      run: |
-        docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
-        docker build -f Dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO }} .
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO }}
-        
+    - name: Build with Gradle Wrapper
+      run: ./gradlew build
+
+    - name: Test with Gradle
+      run: ./gradlew test
+
       

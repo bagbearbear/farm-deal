@@ -1,0 +1,79 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
+
+name: Java CI with Gradle
+
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'adopt'
+
+
+    - uses: samin/mysql-action@v1.1
+      name: MySQL Service
+      with:
+        host port: 3306 # Optional, default value is 3306. The port of host
+        character set server: 'utf8' # Optional, default value is 'utf8mb4'. The '--character-set-server' option for mysqld
+        collation server: 'utf8_general_ci' # Optional, default value is 'utf8mb4_general_ci'. The '--collation-server' option for mysqld
+        mysql version: '8.0' # Optional, default value is "latest". The version of the MySQL
+        mysql database: farmdeal # Optional, default value is "test". The specified database which will be create
+        mysql user: ${{ secrets.DB_USERNAME }} # Required if "mysql root password" is empty, default is empty. The superuser for the specified database. Of course you can use secrets, too
+        mysql password: ${{ secrets.DB_PASSWORD }}
+
+    - name: application.properties 파일 생성
+      run: |
+        mkdir -p ./src/main/resources
+        echo "${{ secrets.APPLICATION_PROPERTIES }}" > ./src/main/resources/application.properties
+
+    - name: application-awss3.yml 파일 생성
+      run: |
+        echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application-awsS3.yml
+      shell: bash
+
+#    - name: Grant execute permission for gradlew
+#      run: chmod +x gradlew
+#
+#    - name: Build with Gradle
+#      uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
+#      with:
+#        arguments: build
+#
+#    - name: Build with Gradle
+#      run: ./gradlew build
+#
+#    - name: Test with Gradle
+#      run: ./gradlew test
+
+# 도커허브 푸시 설정
+    - name: Build with Gradle
+      run: ./gradlew bootJar
+
+      ## 도커 이미지 빌드 후 도커허브에 push하기
+    - name: web docker build and push
+      run: |
+        docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+        docker build -f Dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO }} .
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO }}
+        
+      

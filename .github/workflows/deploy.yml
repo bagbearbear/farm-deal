@@ -83,7 +83,7 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v1
         ## sample라는 ECR 리파지터리에 현재 시간 태그를 생성하고, 푸쉬합니다. xxx부분은 본인의 레파지터리 주소입니다.
         ## 앞의 스탭에서 ${{steps.current-time.outputs.formattedTime}}로 현재 시간을 가져옵니다.
-
+    # ECR 푸시
     - name: Build, tag, and push image to Amazon ECR
       id: build-image
       env:

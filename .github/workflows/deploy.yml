@@ -90,6 +90,6 @@ jobs:
         ## 앞의 스탭에서 ${{steps.current-time.outputs.formattedTime}}로 현재 시간을 가져옵니다.
     - name: Build, tag, and push image to Amazon ECR
       run: |
-        docker build -t sample:${{steps.current-time.outputs.formattedTime}} .
-        docker tag sample:${{steps.current-time.outputs.formattedTime}} xxx.ecr.ap-northeast-2.amazonaws.com/sample:${{steps.current-time.outputs.formattedTime}}
-        docker push xxx.dkr.ecr.ap-northeast-2.amazonaws.com/sample:${{steps.current-time.outputs.formattedTime}}
+        docker build -t farmdeal:${{steps.current-time.outputs.formattedTime}} .
+        docker tag farmdeal:${{steps.current-time.outputs.formattedTime}} ${{ secrets.ECR_REPOSITORY }}.ecr.ap-northeast-2.amazonaws.com/farmdeal:${{steps.current-time.outputs.formattedTime}}
+        docker push ${{ secrets.ECR_REPOSITORY }}.dkr.ecr.ap-northeast-2.amazonaws.com/farmdeal:${{steps.current-time.outputs.formattedTime}}

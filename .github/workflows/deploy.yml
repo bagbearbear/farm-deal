@@ -89,7 +89,8 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: farmdeal
-        IMAGE_TAG: 0.0.1
+        #IMAGE_TAG: 0.0.1
+        IMAGE_TAG: ${{steps.current-time.outputs.formattedTime}}
       run: |
         docker buildx build --platform=linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG

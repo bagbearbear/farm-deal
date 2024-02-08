@@ -83,8 +83,14 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v1
         ## sample라는 ECR 리파지터리에 현재 시간 태그를 생성하고, 푸쉬합니다. xxx부분은 본인의 레파지터리 주소입니다.
         ## 앞의 스탭에서 ${{steps.current-time.outputs.formattedTime}}로 현재 시간을 가져옵니다.
+
     - name: Build, tag, and push image to Amazon ECR
+      id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: farmdeal
+        IMAGE_TAG: 0.0.1
       run: |
-        docker build -t farmdeal:${{steps.current-time.outputs.formattedTime}} .
-        docker tag farmdeal:${{steps.current-time.outputs.formattedTime}} ${{ secrets.ECR_REPOSITORY }}.ecr.ap-northeast-2.amazonaws.com/farmdeal:${{steps.current-time.outputs.formattedTime}}
-        docker push ${{ secrets.ECR_REPOSITORY }}.dkr.ecr.ap-northeast-2.amazonaws.com/farmdeal:${{steps.current-time.outputs.formattedTime}}
+        docker buildx build --platform=linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
